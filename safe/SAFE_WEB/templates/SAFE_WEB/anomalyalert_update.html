@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAFE - Edit Data Sensor #{{ anomalyalert.id }}</title>
+    
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --dark: #1e1e2c;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --gray-light: #adb5bd;
+            --white: #ffffff;
+            --border-radius: 12px;
+            --box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            background: var(--white);
+            padding: 40px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            width: 100%;
+            max-width: 750px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+        }
+
+        .logo-icon svg {
+            width: 28px;
+            height: 28px;
+            fill: var(--white);
+        }
+
+        h1 {
+            color: var(--dark);
+            margin-bottom: 8px;
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .alert-id {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 20px;
+            background: rgba(67, 97, 238, 0.1);
+            padding: 4px 12px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 5px;
+        }
+
+        .alert-info {
+            background-color: var(--light);
+            padding: 24px;
+            border-radius: var(--border-radius);
+            margin-bottom: 25px;
+            border-left: 4px solid var(--primary);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .info-item {
+            margin-bottom: 16px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--dark);
+            min-width: 160px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-label::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .info-value {
+            color: var(--gray);
+            flex: 1;
+        }
+
+        hr {
+            border: none;
+            height: 1px;
+            background: #e2e8f0;
+            margin: 30px 0;
+        }
+
+        h2 {
+            color: var(--dark);
+            margin-bottom: 20px;
+            font-size: 20px;
+            font-weight: 600;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h2::before {
+            content: '📝';
+            font-size: 18px;
+        }
+
+        form {
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+        }
+
+        table tr {
+            border-bottom: 1px solid #e2e8f0;
+            transition: var(--transition);
+        }
+
+        table tr:hover {
+            background-color: var(--light);
+        }
+
+        table tr:last-child {
+            border-bottom: none;
+        }
+
+        table td {
+            padding: 18px 12px;
+            vertical-align: top;
+        }
+
+        table td:first-child {
+            width: 35%;
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        table td:first-child::before {
+            content: '•';
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: var(--transition);
+            background-color: var(--light);
+            font-family: inherit;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+            background-color: var(--white);
+            transform: translateY(-1px);
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(to right, var(--primary), var(--primary-light));
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: var(--transition);
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        button[type="submit"]::before {
+            content: '💾';
+        }
+
+        button[type="submit"]:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(67, 97, 238, 0.4);
+        }
+
+        button[type="submit"]:active {
+            transform: translateY(0);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            width: 100%;
+            margin-top: 20px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 12px;
+            transition: var(--transition);
+            gap: 8px;
+            border: 1.5px solid transparent;
+            border-radius: 8px;
+        }
+
+        .back-link::before {
+            content: '⬅️';
+        }
+
+        .back-link:hover {
+            color: var(--secondary);
+            text-decoration: none;
+            background: rgba(67, 97, 238, 0.05);
+            border-color: rgba(67, 97, 238, 0.2);
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-pending {
+            background: rgba(248, 150, 30, 0.1);
+            color: var(--warning);
+        }
+
+        .status-resolved {
+            background: rgba(76, 201, 240, 0.1);
+            color: var(--success);
+        }
+
+        .status-acknowledged {
+            background: rgba(67, 97, 238, 0.1);
+            color: var(--primary);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(247, 37, 133, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(247, 37, 133, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(247, 37, 133, 0); }
+        }
+
+        .container {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .alert-info {
+            animation: pulse 2s infinite;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px 20px;
+            }
+            
+            h1 {
+                font-size: 22px;
+            }
+            
+            .info-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .info-label {
+                min-width: auto;
+                margin-bottom: 8px;
+            }
+            
+            table td:first-child {
+                width: 40%;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 4px;
+            }
+            
+            table td:first-child::before {
+                display: none;
+            }
+        }
+
+        @media (max-width: 576px) {
+            body {
+                padding: 15px;
+            }
+            
+            .container {
+                padding: 25px 15px;
+            }
+            
+            table td {
+                padding: 12px 8px;
+                display: block;
+                width: 100%;
+            }
+            
+            table td:first-child {
+                width: 100%;
+                padding-bottom: 5px;
+                border-bottom: none;
+            }
+            
+            table tr {
+                display: block;
+                margin-bottom: 15px;
+                padding-bottom: 15px;
+                border-bottom: 1px solid #e2e8f0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" />
+                </svg>
+            </div>
+            <h1>Edit Data Sensor</h1>
+            <div class="alert-id">#{{ anomalyalert.id }}</div>
+        </div>
+        
+        {% if anomalyalert.data_point %}
+        <div class="alert-info">
+            <div class="info-item">
+                <span class="info-label">Device ID</span>
+                <span class="info-value">
+                    {{ anomalyalert.data_point.raw_device_id|default:"-" }}
+                </span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Data Sensor</span>
+                <span class="info-value">
+                    Suhu: {{ anomalyalert.data_point.temperature }}°C, 
+                    Kelembaban: {{ anomalyalert.data_point.humidity }}%
+                </span>
+            </div>
+        </div>
+        {% endif %}
+        
+        <hr>
+        
+        <form method="post">
+            {% csrf_token %} 
+            
+            <h2>Tindakan Operator</h2>
+            
+            <table>
+                {{ form.as_table }}
+            </table>
+            
+            <button type="submit">Update Status Alert</button>
+        </form>
+
+        <a href="{% url 'location_list' %}" class="back-link">Kembali ke Daftar Lokasi</a>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add focus effects to form elements
+            const formElements = document.querySelectorAll('input, select, textarea');
+            
+            formElements.forEach(element => {
+                element.addEventListener('focus', function() {
+                    this.parentElement.style.transform = 'translateY(-2px)';
+                });
+                
+                element.addEventListener('blur', function() {
+                    this.parentElement.style.transform = 'translateY(0)';
+                });
+            });
+
+            // Add confirmation for form submission
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function(e) {
+                const statusSelect = document.querySelector('select[name="status"]');
+                if (statusSelect) {
+                    const selectedStatus = statusSelect.options[statusSelect.selectedIndex].text;
+                    if (!confirm(`Anda yakin ingin mengupdate status alert menjadi "${selectedStatus}"?`)) {
+                        e.preventDefault();
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

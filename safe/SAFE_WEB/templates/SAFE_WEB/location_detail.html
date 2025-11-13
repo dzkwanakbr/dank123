@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAFE - Dashboard Data Sensor: {{ current_location.location_name|default:"Memuat..." }}</title>
+    
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --dark: #1e1e2c;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --gray-light: #adb5bd;
+            --white: #ffffff;
+            --border-radius: 12px;
+            --box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: #f5f7fb;
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header Styles */
+        .header {
+            background: var(--white);
+            padding: 24px 32px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+        }
+
+        .logo-icon svg {
+            width: 26px;
+            height: 26px;
+            fill: var(--white);
+        }
+
+        .header-content h1 {
+            color: var(--dark);
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            letter-spacing: -0.5px;
+        }
+
+        .header-content .subtitle {
+            color: var(--gray);
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .username {
+            color: var(--dark);
+            font-weight: 600;
+            background: var(--light);
+            padding: 10px 18px;
+            border-radius: 30px;
+            border: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn {
+            background: linear-gradient(to right, var(--primary), var(--primary-light));
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: var(--transition);
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(67, 97, 238, 0.4);
+        }
+
+        /* Stats Cards */
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--white);
+            padding: 28px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 6px;
+            height: 100%;
+        }
+
+        .stat-card.total::before {
+            background: linear-gradient(to bottom, var(--primary), var(--primary-light));
+        }
+
+        .stat-card.normal::before {
+            background: linear-gradient(to bottom, var(--success), #3a86ff);
+        }
+
+        .stat-card.anomaly::before {
+            background: linear-gradient(to bottom, var(--danger), #b5179e);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .stat-icon {
+            width: 54px;
+            height: 54px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: var(--white);
+        }
+
+        .total .stat-icon {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+        }
+
+        .normal .stat-icon {
+            background: linear-gradient(135deg, var(--success), #3a86ff);
+        }
+
+        .anomaly .stat-icon {
+            background: linear-gradient(135deg, var(--danger), #b5179e);
+        }
+
+        /* HILANGKAN trend-up/trend-down */
+        .stat-trend {
+            display: none;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--dark);
+        }
+
+        .stat-label {
+            color: var(--gray);
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        /* Charts Section */
+        .charts-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: var(--white);
+            padding: 24px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
+
+        .chart-placeholder {
+            width: 100%;
+            height: 100%;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray);
+            font-weight: 500;
+        }
+
+        /* Action Bar */
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding: 20px;
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        .filter-section {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 8px;
+            background: var(--white);
+            color: var(--gray);
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
+        }
+
+        .filter-btn:hover:not(.active) {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .search-section {
+            display: flex;
+            gap: 12px;
+        }
+
+        .search-box {
+            padding: 10px 16px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            width: 240px;
+            transition: var(--transition);
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
+
+        /* Table Section */
+        .table-section {
+            background: var(--white);
+            padding: 28px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 30px;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .table-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .export-btn, .refresh-btn {
+            padding: 10px 20px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 8px;
+            background: var(--white);
+            color: var(--gray);
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .export-btn:hover, .refresh-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--white);
+        }
+
+        thead {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+
+        th {
+            padding: 16px 12px;
+            text-align: left;
+            color: var(--white);
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 16px 12px;
+            border-bottom: 1px solid #e2e8f0;
+            color: var(--dark);
+        }
+
+        tbody tr {
+            transition: background-color 0.2s;
+        }
+
+        tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .anomaly-row {
+            background-color: rgba(247, 37, 133, 0.05) !important;
+            font-weight: 600;
+            border-left: 4px solid var(--danger);
+        }
+
+        .anomaly-row:hover {
+            background-color: rgba(247, 37, 133, 0.1) !important;
+        }
+
+        .status-anomaly {
+            color: var(--danger);
+            font-weight: 600;
+            background: rgba(247, 37, 133, 0.1);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-normal {
+            color: #38b000;
+            font-weight: 500;
+            background: rgba(56, 176, 0, 0.1);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--gray);
+        }
+
+        .empty-state a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .empty-state a:hover {
+            text-decoration: underline;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: var(--gray-light);
+            font-size: 14px;
+            padding: 20px;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .stats-cards, .charts-section, .table-section {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 1200px) {
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+            
+            .user-info {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            .action-bar {
+                flex-direction: column;
+                gap: 16px;
+            }
+            
+            .filter-section, .search-section {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .search-box {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 16px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .stats-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .table-section {
+                padding: 20px;
+            }
+            
+            .table-header {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+            
+            th, td {
+                padding: 12px 8px;
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .filter-section {
+                flex-wrap: wrap;
+            }
+            
+            .table-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .export-btn, .refresh-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo-section">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" />
+                    </svg>
+                </div>
+                <div class="header-content">
+                    <h1>
+                        {% if current_location %}
+                            Dashboard Sensor - {{ current_location.location_name }}
+                        {% else %}
+                            Dashboard Sensor - Lokasi Tidak Ditemukan
+                        {% endif %}
+                    </h1>
+                    <p class="subtitle">Data historis dan analisis untuk lokasi: {{ current_location.location_name|default:"Tidak Ditemukan" }}</p>
+                </div>
+            </div>
+
+            {% if user.is_authenticated %}
+                <div class="user-info">
+                    <span class="username">👤 {{ user.username }}</span>
+                    <a href="{% url 'location_list' %}" class="back-btn">
+                        <span>⬅️</span> Kembali ke Daftar Lokasi
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="stats-cards">
+            <div class="stat-card total">
+                <div class="stat-header">
+                    <div class="stat-icon">📊</div>
+                </div>
+                <div class="stat-value" id="totalCount">{{ normal_count|add:anomaly_count|default:"0" }}</div>
+                <div class="stat-label">Total Data Sensor</div>
+            </div>
+            <div class="stat-card normal">
+                <div class="stat-header">
+                    <div class="stat-icon">✅</div>
+                </div>
+                <div class="stat-value" id="normalCount">{{ normal_count|default:"0" }}</div>
+                <div class="stat-label">Data Normal</div>
+            </div>
+            <div class="stat-card anomaly">
+                <div class="stat-header">
+                    <div class="stat-icon">⚠️</div>
+                </div>
+                <div class="stat-value" id="anomalyCount">{{ anomaly_count|default:"0" }}</div>
+                <div class="stat-label">Data Anomali</div>
+            </div>
+        </div>
+
+        <div class="charts-section">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Riwayat Suhu & Kelembaban</h3>
+                    <div class="chart-actions">
+                        <select id="chartDataLimit" class="filter-btn" style="padding: 6px 12px;">
+                            <option value="10">10 Data Terakhir</option>
+                            <option value="20">20 Data Terakhir</option>
+                            <option value="30" selected>30 Data Terakhir</option>
+                            <option value="50">50 Data Terakhir</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="tempHumidityChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Distribusi Data (Normal / Anomali)</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="recentStatusPie"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-bar">
+            <div class="filter-section">
+                <button class="filter-btn active">Semua Data</button>
+                <button class="filter-btn">Normal</button>
+                <button class="filter-btn">Anomali</button>
+                <select id="deviceSelect" class="filter-btn" style="padding: 10px 16px;">
+                    <option>Urutkan Terbaru</option>
+                    <option>Urutkan Terlama</option>
+                    <option>Suhu Tertinggi</option>
+                    <option>Suhu Terendah</option>
+                </select>
+            </div>
+            
+            <div class="search-section">
+                <input type="text" class="search-box" placeholder="Cari device ID, suhu, atau kelembaban...">
+                <button class="filter-btn">🔍 Cari</button>
+            </div>
+        </div>
+
+        <div class="table-section">
+            <div class="table-header">
+                <h2 class="table-title">Riwayat Pembacaan Sensor</h2>
+                <div class="table-actions">
+                    <!-- PERBAIKAN: Tombol Export CSV -->
+                    <button id="exportCsvBtn" class="export-btn">
+                        <span>📥</span>
+                        Export CSV
+                    </button>
+                    <button class="refresh-btn" onclick="window.location.reload();">
+                        <span>🔄</span>
+                        Refresh
+                    </button>
+                </div>
+            </div>
+
+        <div class="table-container">
+            <table id="sensorTable">
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Waktu</th>
+                            <th>Device ID</th>
+                            <th>Suhu (°C)</th>
+                            <th>Kelembaban (%)</th>
+                            <th>Lokasi</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sensor-rows">
+                        {% for reading in sensor_readings %}
+                        <tr class="{% if reading.is_anomaly %}anomaly-row{% endif %}">
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ reading.timestamp|date:"d M Y H:i:s" }}</td>
+                            <td>{{ reading.device_id|default:'-' }}</td>
+                            <td>{{ reading.temperature }}</td>
+                            <td>{{ reading.humidity }}</td>
+                            <td>{{ reading.location.location_name }}</td>
+                            <td>
+                                {% if reading.is_anomaly %}
+                                    <span class="status-anomaly">⚠️ ANOMALI</span>
+                                {% else %}
+                                    <span class="status-normal">✅ NORMAL</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="empty-state">
+                                <strong>Tidak ada data sensor yang tersimpan untuk lokasi ini.</strong>
+                                <br>
+                                <a href="#">Klik di sini untuk menambahkan data sensor pertama</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination Controls -->
+            <div id="pagination-controls"></div>
+        </div>
+
+        <div class="footer">
+            &copy; 2024 SAFE Dashboard System. All rights reserved.
+        </div>
+    </div>
+    
+    <!-- Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- DataTables CSS/JS and Buttons (CSV) -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css">
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <!-- Use requested DataTables build -->
+    <script src="//cdn.datatables.net/2.3.4/js/dataTables.min.js"></script>
+    <!-- JSON data for safe JS consumption (injected from view as JSON strings) -->
+    <script type="application/json" id="chart_labels_json">{{ chart_labels_json|safe }}</script>
+    <script type="application/json" id="chart_temps_json">{{ chart_temps_json|safe }}</script>
+    <script type="application/json" id="chart_humids_json">{{ chart_humids_json|safe }}</script>
+    <script type="application/json" id="anomaly_count_json">{{ anomaly_count_json|safe }}</script>
+    <script type="application/json" id="normal_count_json">{{ normal_count_json|safe }}</script>
+    <script type="application/json" id="current_location_id_json">{{ current_location_id_json|safe }}</script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Filter functionality
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    if (this.tagName === 'BUTTON') {
+                        filterButtons.forEach(btn => {
+                            if (btn.tagName === 'BUTTON') {
+                                btn.classList.remove('active');
+                            }
+                        });
+                        this.classList.add('active');
+                        const filterType = this.textContent.trim();
+                        console.log(`Filtering by: ${filterType}`);
+                    }
+                });
+            });
+
+            // Search functionality
+            const searchBox = document.querySelector('.search-box');
+            const searchButton = document.querySelector('.search-section .filter-btn');
+            
+            searchButton.addEventListener('click', function() {
+                const searchTerm = searchBox.value.trim();
+                if (searchTerm) {
+                    console.log(`Searching for: ${searchTerm}`);
+                    // Implement search logic here
+                }
+            });
+            
+            searchBox.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchButton.click();
+                }
+            });
+
+            // PERBAIKAN: Fungsi Export CSV dengan konfirmasi yang benar
+            document.getElementById('exportCsvBtn').addEventListener('click', function() {
+                // Tampilkan konfirmasi
+                const userConfirmed = confirm('Apakah Anda yakin ingin mengekspor data sensor ke file CSV?');
+                
+                // Jika user memilih Cancel, hentikan proses
+                if (!userConfirmed) {
+                    console.log('Export CSV dibatalkan oleh user');
+                    return;
+                }
+
+                // Jika user memilih OK, lanjutkan dengan export
+                try {
+                    // Data untuk CSV (gunakan data dari Django context)
+                    const sensorReadings = {% autoescape off %}{{ sensor_readings|default:"[]" }}{% endautoescape %};
+                    
+                    if (!sensorReadings || sensorReadings.length === 0) {
+                        alert('Tidak ada data sensor untuk diekspor!');
+                        return;
+                    }
+
+                    // Header CSV
+                    let csvContent = "No.,Waktu,Device ID,Suhu (°C),Kelembaban (%),Lokasi,Status\n";
+                    
+                    // Data rows
+                    sensorReadings.forEach((reading, index) => {
+                        const timestamp = new Date(reading.timestamp).toLocaleString('id-ID');
+                        const deviceId = reading.device_id || '-';
+                        const temperature = reading.temperature || '0';
+                        const humidity = reading.humidity || '0';
+                        const locationName = reading.location?.location_name || '{{ current_location.location_name|default:"-" }}';
+                        const status = reading.is_anomaly ? 'ANOMALI' : 'NORMAL';
+                        
+                        csvContent += `${index + 1},"${timestamp}","${deviceId}",${temperature},${humidity},"${locationName}","${status}"\n`;
+                    });
+
+                    // Create and download CSV file
+                    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    const fileName = `sensor_data_{{ current_location.location_name|default:"unknown" }}_${new Date().toISOString().split('T')[0]}.csv`;
+                    
+                    link.setAttribute('href', url);
+                    link.setAttribute('download', fileName);
+                    link.style.visibility = 'hidden';
+                    
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                    // Clean up URL object
+                    setTimeout(() => URL.revokeObjectURL(url), 100);
+                    
+                    console.log('CSV exported successfully');
+                    
+                } catch (error) {
+                    console.error('Error exporting CSV:', error);
+                    alert('Terjadi kesalahan saat mengekspor data. Silakan coba lagi.');
+                }
+            });
+
+            // Render Chart.js charts
+            // Read server-provided arrays from json_script elements (null-safe)
+            const safeText = id => (document.getElementById(id) && document.getElementById(id).textContent) ? document.getElementById(id).textContent : '[]';
+            const labels = JSON.parse(safeText('chart_labels_json'));
+            const temps = JSON.parse(safeText('chart_temps_json'));
+            const humids = JSON.parse(safeText('chart_humids_json'));
+
+            const ctx = document.getElementById('tempHumidityChart').getContext('2d');
+            const tempChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: 'Suhu (°C)', data: temps, borderColor: '#f72585', backgroundColor: 'rgba(247,37,133,0.08)', tension: 0.25, pointRadius: 2, pointHoverRadius: 4, spanGaps: true },
+                        { label: 'Kelembaban (%)', data: humids, borderColor: '#4895ef', backgroundColor: 'rgba(72,149,239,0.08)', tension: 0.25, pointRadius: 2, pointHoverRadius: 4, spanGaps: true }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true } },
+                    elements: { line: { tension: 0.25 } },
+                    plugins: { legend: { display: true } }
+                }
+            });
+
+            // Create doughnut chart to show distribution (normal vs anomaly) overall
+            // initialize pie with zeros; we'll update live from server payload
+            const initialNormal = 0;
+            const initialAnomaly = 0;
+            const ctxRecentPie = document.getElementById('recentStatusPie').getContext('2d');
+            const recentStatusPie = new Chart(ctxRecentPie, {
+                type: 'doughnut',
+                data: { labels: ['Normal','Anomali'], datasets: [{ data: [initialNormal, initialAnomaly], backgroundColor: ['#38b000','#f72585'] }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } } }
+            });
+
+            // Store fetched data
+            let allData = [];
+            const LOCATION_NAME = '{{ current_location.location_name|escapejs }}';
+            
+            // Live polling setup
+            const locationId = parseInt(safeText('current_location_id_json') || '0');
+            const dataUrl = '/location/' + locationId + '/data.json';
+            const deviceSelect = document.getElementById('deviceSelect');
+            let selectedDevice = null;
+
+            function renderTable(rows) {
+                const tbody = document.getElementById('sensor-rows');
+                
+                if (!rows || rows.length === 0) {
+                    console.log('No data to render');
+                    return; // Don't clear existing data
+                }
+
+                allData = rows;
+                
+                tbody.innerHTML = rows.map((r, idx) => {
+                    const cls = r.is_anomaly ? 'anomaly-row' : '';
+                    const statusSpan = r.is_anomaly 
+                        ? '<span class="status-anomaly">⚠️ ANOMALI</span>' 
+                        : '<span class="status-normal">✅ NORMAL</span>';
+                    const dt = new Date(r.timestamp);
+                    const dateStr = dt.toLocaleDateString('id-ID') + ' ' + dt.toLocaleTimeString('id-ID');
+                    
+                    return '<tr class="' + cls + '">' +
+                        '<td>' + (idx + 1) + '</td>' +
+                        '<td>' + dateStr + '</td>' +
+                        '<td>' + (r.device_id || '-') + '</td>' +
+                        '<td>' + r.temperature + '</td>' +
+                        '<td>' + r.humidity + '</td>' +
+                        '<td>' + LOCATION_NAME + '</td>' +
+                        '<td>' + statusSpan + '</td>' +
+                    '</tr>';
+                }).join('');
+            }
+
+            // Downsample helper: reduce number of plotted points evenly to maxPoints
+            function downsampleArray(arr, maxPoints) {
+                if (!arr || arr.length <= maxPoints) return arr.slice();
+                const step = Math.ceil(arr.length / maxPoints);
+                const out = [];
+                for (let i = 0; i < arr.length; i += step) out.push(arr[i]);
+                // ensure last point included
+                if (out[out.length - 1] !== arr[arr.length - 1]) out.push(arr[arr.length - 1]);
+                return out;
+            }
+
+            function updateCharts(rows) {
+                if (!rows || rows.length === 0) {
+                    if (allData.length > 0) rows = allData;
+                    else return;
+                }
+
+                const chrono = rows.slice().reverse();
+                const last50 = chrono.slice(-50);
+
+                const chartLabels = last50.map(r => new Date(r.timestamp).toLocaleTimeString('id-ID'));
+                const chartTemps = last50.map(r => parseFloat(r.temperature) || 0);
+                const chartHums = last50.map(r => parseFloat(r.humidity) || 0);
+
+                tempChart.data.labels = chartLabels;
+                tempChart.data.datasets[0].data = chartTemps;
+                tempChart.data.datasets[1].data = chartHums;
+                tempChart.update();
+
+                const anomalies = last50.filter(r => r.is_anomaly).length;
+                const normal = last50.length - anomalies;
+                
+                recentStatusPie.data.datasets[0].data = [normal, anomalies];
+                recentStatusPie.update();
+
+                document.querySelector('.stat-card.total .stat-value').textContent = rows.length;
+                document.querySelector('.stat-card.normal .stat-value').textContent = normal;
+                document.querySelector('.stat-card.anomaly .stat-value').textContent = anomalies;
+            }
+
+            async function fetchAndRender() {
+                try {
+                    const url = dataUrl;
+                    const res = await fetch(url);
+                    
+                    if (!res.ok) {
+                        console.warn('Fetch failed');
+                        return;
+                    }
+                    
+                    const payload = await res.json();
+                    const rows = payload.data || [];
+
+                    if (rows.length > 0) {
+                        renderTable(rows);
+                        updateCharts(rows);
+                    }
+                    
+                    if (payload.total_normal_count !== undefined && payload.total_anomaly_count !== undefined) {
+                        recentStatusPie.data.datasets[0].data = [payload.total_normal_count, payload.total_anomaly_count];
+                        recentStatusPie.update();
+                        
+                        const total = payload.total_count || (payload.total_normal_count + payload.total_anomaly_count);
+                        document.querySelector('.stat-card.total .stat-value').textContent = total;
+                        document.querySelector('.stat-card.normal .stat-value').textContent = payload.total_normal_count;
+                        document.querySelector('.stat-card.anomaly .stat-value').textContent = payload.total_anomaly_count;
+                    }
+                    
+                } catch (e) {
+                    console.error('Fetch error:', e);
+                }
+            }
+
+            // Start polling after page loads
+            setTimeout(function() {
+                fetchAndRender();
+                setInterval(fetchAndRender, 5000);
+            }, 3000);
+        });
+    </script>
+    
+    <!-- JSON data for JS consumption -->
+    <script type="application/json" id="chart_labels_json">{{ chart_labels_json|safe }}</script>
+    <script type="application/json" id="chart_temps_json">{{ chart_temps_json|safe }}</script>
+    <script type="application/json" id="chart_humids_json">{{ chart_humids_json|safe }}</script>
+    <script type="application/json" id="anomaly_count_json">{{ anomaly_count_json|safe }}</script>
+    <script type="application/json" id="normal_count_json">{{ normal_count_json|safe }}</script>
+    <script type="application/json" id="current_location_id_json">{{ current_location_id_json|safe }}</script>
+    
+    <!-- External dashboard script for live updates -->
+    {% load static %}
+    <script src="{% static 'js/dashboard.js' %}"></script>
+</body>
+</html>
